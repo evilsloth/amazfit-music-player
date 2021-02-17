@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="320px"
+    android:layout_height="300px"
+    tools:ignore="PxUsage">
+
+    <TextView
+        android:id="@+id/playback_time_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30px"
+        android:gravity="center_horizontal"
+        android:text="@string/default_progress_time" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="70px"
+        android:gravity="center">
+
+        <ImageButton
+            android:id="@+id/decrease_volume_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/volume_button_background"
+            android:src="@drawable/ic_volume_down" />
+
+        <ProgressBar
+            android:id="@+id/volume_progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="90px"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8px"
+            android:layout_marginEnd="8px"
+            android:max="100"
+            android:progress="50" />
+
+        <ImageButton
+            android:id="@+id/increase_volume_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/volume_button_background"
+            android:src="@drawable/ic_volume_up" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/track_name_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16px"
+        android:layout_marginTop="160px"
+        android:layout_marginEnd="16px"
+        android:ellipsize="marquee"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center_horizontal"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:text="@string/default_track_name" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="200px"
+        android:gravity="center">
+
+        <ImageButton
+            android:id="@+id/prevoius_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/control_button_background"
+            android:src="@android:drawable/ic_media_previous" />
+
+        <ImageButton
+            android:id="@+id/play_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8px"
+            android:layout_marginEnd="8px"
+            android:background="@drawable/control_button_background"
+            android:src="@android:drawable/ic_media_play" />
+
+        <ImageButton
+            android:id="@+id/next_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/control_button_background"
+            android:src="@android:drawable/ic_media_next" />
+
+    </LinearLayout>
+
+</FrameLayout>

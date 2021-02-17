@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="control_button_background">#4CAF50</color>
+    <color name="control_button_outline">#63BF82</color>
+    <color name="control_button_background_disabled">#BCBCBC</color>
+    <color name="control_button_outline_disabled">#939393</color>
+    <color name="volume_button_background">#00BCD4</color>
+    <color name="volume_button_outline">#0295A8</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
