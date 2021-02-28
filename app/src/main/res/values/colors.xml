@@ -8,4 +8,5 @@
     <color name="volume_button_outline">#0295A8</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="active_track_text_color">#00CC08</color>
 </resources>

@@ -1,4 +1,8 @@
-package io.github.evilsloth.amazfitplayer.mediaplayer.track
+package io.github.evilsloth.amazfitplayer.queue
+
+import io.github.evilsloth.amazfitplayer.tracks.Track
+
+typealias OnQueueChangedListener = () -> Unit
 
 class TrackQueue {
 
@@ -16,9 +20,14 @@ class TrackQueue {
     val current: Track?
         get() = if (currentIndex < queue.size) queue[currentIndex] else null
 
-    private val queue: MutableList<Track> = mutableListOf()
+    val tracks: List<Track>
+        get() = queue
 
-    private var currentIndex = 0
+    var currentIndex = 0
+
+    private val onQueueChangedListeners = mutableSetOf<OnQueueChangedListener>()
+
+    private val queue: MutableList<Track> = mutableListOf()
 
     fun next(): Track? {
         if (!hasNext) return null
@@ -29,6 +38,7 @@ class TrackQueue {
             currentIndex = 0
         }
 
+        onQueueChangedListeners.forEach { it() }
         return queue[currentIndex]
     }
 
@@ -41,6 +51,16 @@ class TrackQueue {
             currentIndex = queue.size - 1
         }
 
+        onQueueChangedListeners.forEach { it() }
+        return queue[currentIndex]
+    }
+
+    fun jumpToTrack(trackPosition: Int): Track? {
+        if (trackPosition > queue.size - 1) return null
+
+        currentIndex = trackPosition
+
+        onQueueChangedListeners.forEach { it() }
         return queue[currentIndex]
     }
 
@@ -51,6 +71,11 @@ class TrackQueue {
 
     fun add(tracks: List<Track>) {
         queue.addAll(tracks)
+        onQueueChangedListeners.forEach { it() }
+    }
+
+    fun addOnQueueChangedListener(listener: OnQueueChangedListener) {
+        onQueueChangedListeners.add(listener)
     }
 
 }

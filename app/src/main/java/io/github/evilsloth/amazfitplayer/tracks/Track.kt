@@ -1,4 +1,4 @@
-package io.github.evilsloth.amazfitplayer.mediaplayer.track
+package io.github.evilsloth.amazfitplayer.tracks
 
 import android.net.Uri
 

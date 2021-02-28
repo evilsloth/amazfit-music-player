@@ -28,7 +28,7 @@ abstract class BasePlayerPlugin : AbstractPlugin() {
 
     override fun getView(context: Context): View? {
         this.context = context
-        mainView = LayoutInflater.from(context).inflate(R.layout.player_main, null)
+        mainView = LayoutInflater.from(context).inflate(R.layout.plugin_main, null)
         onViewCreated()
         Log.d(TAG, "getView")
         return mainView
