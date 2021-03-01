@@ -1,10 +1,12 @@
 package io.github.evilsloth.amazfitplayer
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Environment
 import android.view.GestureDetector
 import androidx.viewpager2.widget.ViewPager2
 import io.github.evilsloth.amazfitplayer.mediaplayer.AmazfitMediaPlayer
+import io.github.evilsloth.amazfitplayer.mediaplayer.MediaSessionController
 import io.github.evilsloth.amazfitplayer.mediaplayer.PlaybackTimer
 import io.github.evilsloth.amazfitplayer.mediaplayer.PlayerPluginPage
 import io.github.evilsloth.amazfitplayer.plugin.BasePlayerPlugin
@@ -15,18 +17,32 @@ import io.github.evilsloth.amazfitplayer.queue.TrackQueue
 import io.github.evilsloth.amazfitplayer.tracks.FileTrack
 import java.io.File
 
+
 private const val TAG = "PlayerPlugin"
 
 class PlayerPlugin : BasePlayerPlugin() {
 
     private lateinit var mediaPlayer: AmazfitMediaPlayer
+    private lateinit var mediaSessionController: MediaSessionController
     private lateinit var playbackTimer: PlaybackTimer
     private lateinit var trackQueue: TrackQueue
     private lateinit var viewPager: ViewPager2
 
     override fun onViewCreated() {
+        viewPager = mainView.findViewById(R.id.main_pager)
+        viewPager.isUserInputEnabled = false
+
+        val gestureDetector = GestureDetector(context, PluginPageChangingGestureListener(viewPager))
+        mainView.setOnTouchListener { view, event ->
+            view.performClick()
+            gestureDetector.onTouchEvent(event)
+        }
+    }
+
+    override fun afterViewCreated(launcherContext: Context) {
         trackQueue = TrackQueue()
-        mediaPlayer = AmazfitMediaPlayer(context, trackQueue)
+        mediaPlayer = AmazfitMediaPlayer(launcherContext, trackQueue)
+        mediaSessionController = MediaSessionController(launcherContext, mediaPlayer)
         playbackTimer = PlaybackTimer(this, host)
 
         val tracks = readFiles().map { FileTrack(it) }
@@ -37,8 +53,6 @@ class PlayerPlugin : BasePlayerPlugin() {
             QueuePluginPage(trackQueue, mediaPlayer)
         )
 
-        viewPager = mainView.findViewById(R.id.main_pager)
-        viewPager.isUserInputEnabled = false
         viewPager.adapter = PluginPagesAdapter(pages)
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -46,12 +60,6 @@ class PlayerPlugin : BasePlayerPlugin() {
             }
         })
         goToDefaultPage()
-
-        val gestureDetector = GestureDetector(context, PluginPageChangingGestureListener(viewPager))
-        mainView.setOnTouchListener { view, event ->
-            view.performClick()
-            gestureDetector.onTouchEvent(event)
-        }
     }
 
     override fun onShow() {

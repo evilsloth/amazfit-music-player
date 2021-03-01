@@ -13,6 +13,8 @@ private const val TAG = "AmazfitMediaPlayer"
 
 typealias OnTrackChangedListener = (track: Track?) -> Unit
 
+typealias OnControlStateChangedListener = () -> Unit
+
 class AmazfitMediaPlayer(
     private val context: Context,
     private val trackQueue: TrackQueue
@@ -52,12 +54,16 @@ class AmazfitMediaPlayer(
 
     private val onTrackChangedListeners = mutableSetOf<OnTrackChangedListener>()
 
+    private val onControlStateChangedListeners = mutableSetOf<OnControlStateChangedListener>()
+
     fun play() {
         mediaPlayer?.start()
+        notifyControlStateChanged()
     }
 
     fun pause() {
         mediaPlayer?.pause()
+        notifyControlStateChanged()
     }
 
     fun next() {
@@ -90,11 +96,13 @@ class AmazfitMediaPlayer(
     fun increaseVolume() {
         volume = if (volume + 1 < VOLUME_STEPS - 1) volume + 1 else VOLUME_STEPS - 1
         updateVolume()
+        notifyControlStateChanged()
     }
 
     fun decreaseVolume() {
         volume = if (volume - 1 > 0) volume - 1 else 0
         updateVolume()
+        notifyControlStateChanged()
     }
 
     fun replaceQueue(tracks: List<Track>) {
@@ -109,6 +117,10 @@ class AmazfitMediaPlayer(
 
     fun addOnTrackChangedListener(listener: OnTrackChangedListener) {
         onTrackChangedListeners.add(listener)
+    }
+
+    fun addOnControlStateChangedListeners(listener: OnControlStateChangedListener) {
+        onControlStateChangedListeners.add(listener)
     }
 
     private fun loadTrack(track: Track) {
@@ -126,6 +138,10 @@ class AmazfitMediaPlayer(
 
     private fun notifyTrackChanged() {
         onTrackChangedListeners.forEach { it(trackQueue.current) }
+    }
+
+    private fun notifyControlStateChanged() {
+        onControlStateChangedListeners.forEach { it() }
     }
 
 }

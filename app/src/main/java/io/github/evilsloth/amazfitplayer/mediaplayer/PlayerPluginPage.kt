@@ -42,10 +42,10 @@ class PlayerPluginPage(
         trackNameText.isSelected = true // activates marquee effect
         playbackTimer.tickListener = this::updatePlaybackTime
         mediaPlayer.addOnTrackChangedListener { updateTrackInfo(it) }
+        mediaPlayer.addOnControlStateChangedListeners { updateControlsState() }
 
         updateTrackInfo(mediaPlayer.currentTrack)
-        updatePlaybackControls()
-        updateVolumeControls()
+        updateControlsState()
     }
 
     private fun togglePlay() {
@@ -54,7 +54,6 @@ class PlayerPluginPage(
         } else {
             mediaPlayer.play()
         }
-        updatePlaybackControls()
     }
 
     private fun playNext() {
@@ -67,17 +66,19 @@ class PlayerPluginPage(
 
     private fun increaseVolume() {
         mediaPlayer.increaseVolume()
-        updateVolumeControls()
     }
 
     private fun decreaseVolume() {
         mediaPlayer.decreaseVolume()
-        updateVolumeControls()
     }
 
     private fun updateTrackInfo(track: Track?) {
         trackNameText.text = track?.name ?: "---"
+    }
+
+    private fun updateControlsState() {
         updatePlaybackControls()
+        updateVolumeControls()
     }
 
     private fun updatePlaybackControls() {

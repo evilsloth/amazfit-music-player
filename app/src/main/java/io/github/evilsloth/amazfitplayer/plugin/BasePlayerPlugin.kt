@@ -19,8 +19,11 @@ abstract class BasePlayerPlugin : AbstractPlugin() {
     lateinit var mainView: View
     lateinit var host: ISpringBoardHostStub
     var active = false
+    var calledAfterViewCreated = false
 
     abstract fun onViewCreated()
+
+    abstract fun afterViewCreated(launcherContext: Context)
 
     abstract fun onShow()
 
@@ -74,6 +77,12 @@ abstract class BasePlayerPlugin : AbstractPlugin() {
         if (active) {
             active = false
             onHide()
+        }
+
+        // only onInactive is called directly after launcher started and view is bound to launcher
+        if (!calledAfterViewCreated) {
+            afterViewCreated((mainView.parent as View).context)
+            calledAfterViewCreated = true
         }
     }
 
