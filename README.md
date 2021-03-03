@@ -6,3 +6,5 @@ Simple alternative music player for Amazfit Stratos and Amazfit Pace watches.
 
 - Plays all mp3 songs inside Music directory and inside all subdirectories. Songs are sorted by file name.
 - Tracks queue (swipe up from lower screen edge). Tap on song name to play it.
+- Playback control with bluetooth headset buttons.
+- Tracks queue order control (normal, random, repeat all).

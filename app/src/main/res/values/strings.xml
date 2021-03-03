@@ -3,4 +3,7 @@
     <string name="app_name_short">Music</string>
     <string name="default_progress_time">-:—/-:—</string>
     <string name="default_track_name">---</string>
+    <string name="order_normal">Normal order</string>
+    <string name="order_random">Random order</string>
+    <string name="order_repeat_all">Repeat all tracks</string>
 </resources>

@@ -1,5 +1,6 @@
 package io.github.evilsloth.amazfitplayer.mediaplayer
 
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ProgressBar
@@ -8,6 +9,8 @@ import io.github.evilsloth.amazfitplayer.R
 import io.github.evilsloth.amazfitplayer.plugin.PluginPage
 import io.github.evilsloth.amazfitplayer.tracks.Track
 import io.github.evilsloth.amazfitplayer.utils.TimeUtils
+
+private const val TAG = "PlayerPluginPage"
 
 class PlayerPluginPage(
     private val mediaPlayer: AmazfitMediaPlayer,
@@ -90,10 +93,11 @@ class PlayerPluginPage(
     }
 
     private fun updateVolumeControls() {
-        volumeProgressBar.max = VOLUME_STEPS
+        volumeProgressBar.max = mediaPlayer.maxVolume
         volumeProgressBar.progress = mediaPlayer.volume
         decreaseVolumeButton.isEnabled = mediaPlayer.canDecreaseVolume
         increaseVolumeButton.isEnabled = mediaPlayer.canIncreaseVolume
+        Log.d(TAG, "volume max = " + mediaPlayer.maxVolume + " current = " + mediaPlayer.volume)
     }
 
     private fun updatePlaybackTime() {

@@ -1,18 +1,19 @@
 package io.github.evilsloth.amazfitplayer.queue
 
 import io.github.evilsloth.amazfitplayer.tracks.Track
+import kotlin.random.Random
 
 typealias OnQueueChangedListener = () -> Unit
 
 class TrackQueue {
 
-    val repeat = false
+    var playbackOrder: QueuePlaybackOrder = QueuePlaybackOrder.NORMAL
 
     val hasNext
-        get() = if (repeat) isEmpty else currentIndex < queue.size - 1
+        get() = if (playbackOrder != QueuePlaybackOrder.NORMAL) !isEmpty else currentIndex < queue.size - 1
 
     val hasPrevious
-        get() = if (repeat) isEmpty else currentIndex > 0
+        get() = if (playbackOrder != QueuePlaybackOrder.NORMAL) !isEmpty else currentIndex > 0
 
     val isEmpty
         get() = queue.isEmpty()
@@ -32,10 +33,14 @@ class TrackQueue {
     fun next(): Track? {
         if (!hasNext) return null
 
-        currentIndex++
+        if (playbackOrder == QueuePlaybackOrder.RANDOM) {
+            currentIndex = getRandomIndex()
+        } else {
+            currentIndex++
 
-        if (repeat && currentIndex >= queue.size) {
-            currentIndex = 0
+            if (playbackOrder == QueuePlaybackOrder.REPEAT_ALL && currentIndex >= queue.size) {
+                currentIndex = 0
+            }
         }
 
         onQueueChangedListeners.forEach { it() }
@@ -45,10 +50,14 @@ class TrackQueue {
     fun previous(): Track? {
         if (!hasPrevious) return null
 
-        currentIndex--
+        if (playbackOrder == QueuePlaybackOrder.RANDOM) {
+            currentIndex = getRandomIndex()
+        } else {
+            currentIndex--
 
-        if (repeat && currentIndex < 0) {
-            currentIndex = queue.size - 1
+            if (playbackOrder == QueuePlaybackOrder.REPEAT_ALL && currentIndex < 0) {
+                currentIndex = queue.size - 1
+            }
         }
 
         onQueueChangedListeners.forEach { it() }
@@ -77,5 +86,7 @@ class TrackQueue {
     fun addOnQueueChangedListener(listener: OnQueueChangedListener) {
         onQueueChangedListeners.add(listener)
     }
+
+    private fun getRandomIndex() = Random.nextInt(0, queue.size)
 
 }

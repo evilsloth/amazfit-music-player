@@ -21,7 +21,7 @@ class PluginPageChangingGestureListener(private val viewPager: ViewPager2) : Ges
         }
 
         if (e1 != null && e1.y > CHANGE_PAGE_DOWN_THRESHOLD_PX) {
-            if (viewPager.currentItem < itemCount - 1) {
+            if (currentItem < itemCount - 1) {
                 viewPager.setCurrentItem(currentItem + 1, true)
                 return true
             }

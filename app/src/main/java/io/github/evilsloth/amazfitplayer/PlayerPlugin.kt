@@ -9,11 +9,13 @@ import io.github.evilsloth.amazfitplayer.mediaplayer.AmazfitMediaPlayer
 import io.github.evilsloth.amazfitplayer.mediaplayer.MediaSessionController
 import io.github.evilsloth.amazfitplayer.mediaplayer.PlaybackTimer
 import io.github.evilsloth.amazfitplayer.mediaplayer.PlayerPluginPage
+import io.github.evilsloth.amazfitplayer.mediaplayer.volume.VolumeController
 import io.github.evilsloth.amazfitplayer.plugin.BasePlayerPlugin
 import io.github.evilsloth.amazfitplayer.plugin.PluginPageChangingGestureListener
 import io.github.evilsloth.amazfitplayer.plugin.PluginPagesAdapter
 import io.github.evilsloth.amazfitplayer.queue.QueuePluginPage
 import io.github.evilsloth.amazfitplayer.queue.TrackQueue
+import io.github.evilsloth.amazfitplayer.settings.SettingsPluginPage
 import io.github.evilsloth.amazfitplayer.tracks.FileTrack
 import java.io.File
 
@@ -23,6 +25,7 @@ private const val TAG = "PlayerPlugin"
 class PlayerPlugin : BasePlayerPlugin() {
 
     private lateinit var mediaPlayer: AmazfitMediaPlayer
+    private lateinit var volumeController: VolumeController
     private lateinit var mediaSessionController: MediaSessionController
     private lateinit var playbackTimer: PlaybackTimer
     private lateinit var trackQueue: TrackQueue
@@ -41,7 +44,8 @@ class PlayerPlugin : BasePlayerPlugin() {
 
     override fun afterViewCreated(launcherContext: Context) {
         trackQueue = TrackQueue()
-        mediaPlayer = AmazfitMediaPlayer(launcherContext, trackQueue)
+        volumeController = VolumeController(launcherContext)
+        mediaPlayer = AmazfitMediaPlayer(launcherContext, trackQueue, volumeController)
         mediaSessionController = MediaSessionController(launcherContext, mediaPlayer)
         playbackTimer = PlaybackTimer(this, host)
 
@@ -49,6 +53,7 @@ class PlayerPlugin : BasePlayerPlugin() {
         mediaPlayer.replaceQueue(tracks)
 
         val pages = arrayOf(
+            SettingsPluginPage(mediaPlayer, context),
             PlayerPluginPage(mediaPlayer, playbackTimer),
             QueuePluginPage(trackQueue, mediaPlayer)
         )
@@ -82,7 +87,7 @@ class PlayerPlugin : BasePlayerPlugin() {
     }
 
     private fun goToDefaultPage() {
-        viewPager.setCurrentItem(0, false)
+        viewPager.setCurrentItem(1, false)
     }
 
 }

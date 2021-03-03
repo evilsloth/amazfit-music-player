@@ -2,12 +2,10 @@ package io.github.evilsloth.amazfitplayer.mediaplayer
 
 import android.content.Context
 import android.media.MediaPlayer
-import android.util.Log
+import io.github.evilsloth.amazfitplayer.mediaplayer.volume.VolumeController
+import io.github.evilsloth.amazfitplayer.queue.QueuePlaybackOrder
 import io.github.evilsloth.amazfitplayer.queue.TrackQueue
 import io.github.evilsloth.amazfitplayer.tracks.Track
-import kotlin.math.ln
-
-const val VOLUME_STEPS = 20
 
 private const val TAG = "AmazfitMediaPlayer"
 
@@ -17,7 +15,8 @@ typealias OnControlStateChangedListener = () -> Unit
 
 class AmazfitMediaPlayer(
     private val context: Context,
-    private val trackQueue: TrackQueue
+    private val trackQueue: TrackQueue,
+    private val volumeController: VolumeController
 ) {
 
     val playing: Boolean
@@ -32,14 +31,17 @@ class AmazfitMediaPlayer(
     val trackPosition: Int
         get() = mediaPlayer?.currentPosition ?: 0
 
-    var volume = VOLUME_STEPS / 2
-        private set
+    val volume: Int
+        get() = volumeController.volume
+
+    val maxVolume: Int
+        get() = volumeController.maxVolume
 
     val canIncreaseVolume
-        get() = volume < VOLUME_STEPS - 1
+        get() = volumeController.canIncreaseVolume()
 
     val canDecreaseVolume
-        get() = volume > 0
+        get() = volumeController.canDecreaseVolume()
 
     val hasNext
         get() = trackQueue.hasNext
@@ -49,6 +51,13 @@ class AmazfitMediaPlayer(
 
     val hasAnyTracks
         get() = !trackQueue.isEmpty
+
+    var playbackOrder: QueuePlaybackOrder
+        get() = trackQueue.playbackOrder
+        set(value) {
+            trackQueue.playbackOrder = value
+            notifyControlStateChanged()
+        }
 
     private var mediaPlayer: MediaPlayer? = null
 
@@ -94,14 +103,12 @@ class AmazfitMediaPlayer(
     }
 
     fun increaseVolume() {
-        volume = if (volume + 1 < VOLUME_STEPS - 1) volume + 1 else VOLUME_STEPS - 1
-        updateVolume()
+        volumeController.increaseVolume()
         notifyControlStateChanged()
     }
 
     fun decreaseVolume() {
-        volume = if (volume - 1 > 0) volume - 1 else 0
-        updateVolume()
+        volumeController.decreaseVolume()
         notifyControlStateChanged()
     }
 
@@ -127,13 +134,7 @@ class AmazfitMediaPlayer(
         mediaPlayer?.release()
         mediaPlayer = MediaPlayer.create(context, track.uri)
         mediaPlayer?.setOnCompletionListener { next() }
-        updateVolume()
-    }
-
-    private fun updateVolume() {
-        val volumeScalar = (1 - (ln(VOLUME_STEPS.toFloat() - volume) / ln(VOLUME_STEPS.toFloat())))
-        Log.d(TAG, "update volume $volume -> $volumeScalar")
-        mediaPlayer?.setVolume(volumeScalar, volumeScalar);
+        mediaPlayer?.setVolume(1.0f, 1.0f)
     }
 
     private fun notifyTrackChanged() {
