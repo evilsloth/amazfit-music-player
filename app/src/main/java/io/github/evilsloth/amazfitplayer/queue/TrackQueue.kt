@@ -1,7 +1,6 @@
 package io.github.evilsloth.amazfitplayer.queue
 
 import io.github.evilsloth.amazfitplayer.tracks.Track
-import kotlin.random.Random
 
 typealias OnQueueChangedListener = () -> Unit
 
@@ -30,17 +29,18 @@ class TrackQueue {
 
     private val queue: MutableList<Track> = mutableListOf()
 
+    private var randomIndexes: List<Int> = listOf()
+
+    private var currentRandom: Int = 0
+
     fun next(): Track? {
         if (!hasNext) return null
 
         if (playbackOrder == QueuePlaybackOrder.RANDOM) {
-            currentIndex = getRandomIndex()
+            currentRandom = (currentRandom + 1) % randomIndexes.size
+            currentIndex = randomIndexes[currentRandom]
         } else {
-            currentIndex++
-
-            if (playbackOrder == QueuePlaybackOrder.REPEAT_ALL && currentIndex >= queue.size) {
-                currentIndex = 0
-            }
+            currentIndex = (currentIndex + 1) % queue.size
         }
 
         onQueueChangedListeners.forEach { it() }
@@ -51,13 +51,10 @@ class TrackQueue {
         if (!hasPrevious) return null
 
         if (playbackOrder == QueuePlaybackOrder.RANDOM) {
-            currentIndex = getRandomIndex()
+            currentRandom = if (currentRandom > 0) currentRandom - 1 else randomIndexes.size - 1
+            currentIndex = randomIndexes[currentRandom]
         } else {
-            currentIndex--
-
-            if (playbackOrder == QueuePlaybackOrder.REPEAT_ALL && currentIndex < 0) {
-                currentIndex = queue.size - 1
-            }
+            currentIndex = if (currentIndex > 0) currentIndex - 1 else queue.size - 1
         }
 
         onQueueChangedListeners.forEach { it() }
@@ -80,13 +77,12 @@ class TrackQueue {
 
     fun add(tracks: List<Track>) {
         queue.addAll(tracks)
+        randomIndexes = (0 until queue.size).shuffled()
         onQueueChangedListeners.forEach { it() }
     }
 
     fun addOnQueueChangedListener(listener: OnQueueChangedListener) {
         onQueueChangedListeners.add(listener)
     }
-
-    private fun getRandomIndex() = Random.nextInt(0, queue.size)
 
 }
