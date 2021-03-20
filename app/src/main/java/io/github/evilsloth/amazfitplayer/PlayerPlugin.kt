@@ -8,8 +8,10 @@ import io.github.evilsloth.amazfitplayer.mediaplayer.AmazfitMediaPlayer
 import io.github.evilsloth.amazfitplayer.mediaplayer.MediaSessionController
 import io.github.evilsloth.amazfitplayer.mediaplayer.PlaybackTimer
 import io.github.evilsloth.amazfitplayer.mediaplayer.PlayerPluginPage
+import io.github.evilsloth.amazfitplayer.mediaplayer.headphones.HeadphonesConnectionManager
 import io.github.evilsloth.amazfitplayer.mediaplayer.volume.VolumeController
 import io.github.evilsloth.amazfitplayer.plugin.BasePlayerPlugin
+import io.github.evilsloth.amazfitplayer.plugin.PluginPage
 import io.github.evilsloth.amazfitplayer.plugin.PluginPageChangingGestureListener
 import io.github.evilsloth.amazfitplayer.plugin.PluginPagesAdapter
 import io.github.evilsloth.amazfitplayer.queue.QueuePluginPage
@@ -23,6 +25,7 @@ private const val TAG = "PlayerPlugin"
 class PlayerPlugin : BasePlayerPlugin() {
 
     private lateinit var mediaPlayer: AmazfitMediaPlayer
+    private lateinit var headphonesConnectionManager: HeadphonesConnectionManager
     private lateinit var volumeController: VolumeController
     private lateinit var mediaSessionController: MediaSessionController
     private lateinit var playbackTimer: PlaybackTimer
@@ -43,8 +46,10 @@ class PlayerPlugin : BasePlayerPlugin() {
 
     override fun afterViewCreated(launcherContext: Context) {
         trackQueue = TrackQueue()
+        headphonesConnectionManager =
+            HeadphonesConnectionManager(launcherContext)
         volumeController = VolumeController(launcherContext)
-        mediaPlayer = AmazfitMediaPlayer(context, trackQueue, volumeController)
+        mediaPlayer = AmazfitMediaPlayer(context, trackQueue, volumeController, headphonesConnectionManager)
         mediaSessionController = MediaSessionController(launcherContext, mediaPlayer)
         playbackTimer = PlaybackTimer(this, host)
         fileTracksResolver = FileTracksResolver()
@@ -52,19 +57,15 @@ class PlayerPlugin : BasePlayerPlugin() {
         val tracks = fileTracksResolver.resolve("Music", FileTracksResolver.PathType.DIRECTORY_DEEP)
         mediaPlayer.replaceQueue(tracks)
 
+        headphonesConnectionManager.addOnHeadphonesDisconnectedListener { mediaPlayer.pause() }
+
         val pages = arrayOf(
             SettingsPluginPage(mediaPlayer, context),
-            PlayerPluginPage(mediaPlayer, playbackTimer),
+            PlayerPluginPage(mediaPlayer, playbackTimer, headphonesConnectionManager, context),
             QueuePluginPage(trackQueue, mediaPlayer)
         )
 
-        viewPager.adapter = PluginPagesAdapter(pages)
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                pages[position].onShowPage()
-            }
-        })
-        goToDefaultPage()
+        initPluginPages(pages)
     }
 
     override fun onShow() {
@@ -77,6 +78,16 @@ class PlayerPlugin : BasePlayerPlugin() {
 
     override fun onInactive(paramBundle: Bundle?) {
         super.onInactive(paramBundle)
+        goToDefaultPage()
+    }
+
+    private fun initPluginPages(pages: Array<PluginPage>) {
+        viewPager.adapter = PluginPagesAdapter(pages)
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                pages[position].onShowPage()
+            }
+        })
         goToDefaultPage()
     }
 

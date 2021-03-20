@@ -5,6 +5,7 @@ import android.media.MediaPlayer
 import android.util.Log
 import android.widget.Toast
 import io.github.evilsloth.amazfitplayer.R
+import io.github.evilsloth.amazfitplayer.mediaplayer.headphones.HeadphonesConnectionManager
 import io.github.evilsloth.amazfitplayer.mediaplayer.volume.VolumeController
 import io.github.evilsloth.amazfitplayer.queue.QueuePlaybackOrder
 import io.github.evilsloth.amazfitplayer.queue.TrackQueue
@@ -19,7 +20,8 @@ typealias OnControlStateChangedListener = () -> Unit
 class AmazfitMediaPlayer(
     private val context: Context,
     private val trackQueue: TrackQueue,
-    private val volumeController: VolumeController
+    private val volumeController: VolumeController,
+    private val headphonesConnectionManager: HeadphonesConnectionManager
 ) {
 
     val playing: Boolean
@@ -69,7 +71,9 @@ class AmazfitMediaPlayer(
     private val onControlStateChangedListeners = mutableSetOf<OnControlStateChangedListener>()
 
     fun play() {
-        mediaPlayer?.start()
+        if (headphonesConnectionManager.isConnected) {
+            mediaPlayer?.start()
+        }
         notifyControlStateChanged()
     }
 

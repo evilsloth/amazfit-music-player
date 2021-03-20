@@ -7,4 +7,5 @@
     <string name="order_random">Random order</string>
     <string name="order_repeat_all">Repeat all tracks</string>
     <string name="error_loading_track">Error loading %1$s</string>
+    <string name="headphones_not_connected">Headphones not connected</string>
 </resources>

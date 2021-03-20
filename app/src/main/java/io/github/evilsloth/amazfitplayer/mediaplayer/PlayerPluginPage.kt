@@ -1,11 +1,14 @@
 package io.github.evilsloth.amazfitplayer.mediaplayer
 
+import android.content.Context
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import io.github.evilsloth.amazfitplayer.R
+import io.github.evilsloth.amazfitplayer.mediaplayer.headphones.HeadphonesConnectionManager
 import io.github.evilsloth.amazfitplayer.plugin.PluginPage
 import io.github.evilsloth.amazfitplayer.tracks.Track
 import io.github.evilsloth.amazfitplayer.utils.TimeUtils
@@ -14,7 +17,9 @@ private const val TAG = "PlayerPluginPage"
 
 class PlayerPluginPage(
     private val mediaPlayer: AmazfitMediaPlayer,
-    private val playbackTimer: PlaybackTimer
+    private val playbackTimer: PlaybackTimer,
+    private val headphonesConnectionManager: HeadphonesConnectionManager,
+    private val context: Context
 ) : PluginPage(R.layout.player_page) {
 
     private lateinit var playbackTimeText: TextView
@@ -46,12 +51,17 @@ class PlayerPluginPage(
         playbackTimer.tickListener = this::updatePlaybackTime
         mediaPlayer.addOnTrackChangedListener { updateTrackInfo(it) }
         mediaPlayer.addOnControlStateChangedListeners { updateControlsState() }
+        headphonesConnectionManager.addOnHeadphonesConnectedListener { updateControlsState() } // volume changes on headphones connect
 
         updateTrackInfo(mediaPlayer.currentTrack)
         updateControlsState()
     }
 
     private fun togglePlay() {
+        if (!headphonesConnectionManager.isConnected) {
+            Toast.makeText(context, R.string.headphones_not_connected, Toast.LENGTH_LONG).show()
+        }
+
         if (mediaPlayer.playing) {
             mediaPlayer.pause()
         } else {
