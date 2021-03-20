@@ -10,11 +10,11 @@ import android.view.KeyEvent
 private const val TAG = "MediaSessionController"
 
 class MediaSessionController(
-    private val context: Context,
+    private val launcherContext: Context,
     private val mediaPlayer: AmazfitMediaPlayer
 ) : MediaSession.Callback() {
 
-    private val mediaSession: MediaSession = MediaSession(context, TAG)
+    private val mediaSession: MediaSession = MediaSession(launcherContext, TAG)
 
     init {
         @Suppress("DEPRECATION") // media buttons do not work without flags despite what docs say

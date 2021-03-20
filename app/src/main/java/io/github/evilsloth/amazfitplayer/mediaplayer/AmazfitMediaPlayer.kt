@@ -2,6 +2,9 @@ package io.github.evilsloth.amazfitplayer.mediaplayer
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.util.Log
+import android.widget.Toast
+import io.github.evilsloth.amazfitplayer.R
 import io.github.evilsloth.amazfitplayer.mediaplayer.volume.VolumeController
 import io.github.evilsloth.amazfitplayer.queue.QueuePlaybackOrder
 import io.github.evilsloth.amazfitplayer.queue.TrackQueue
@@ -135,6 +138,12 @@ class AmazfitMediaPlayer(
         mediaPlayer = MediaPlayer.create(context, track.uri)
         mediaPlayer?.setOnCompletionListener { next() }
         mediaPlayer?.setVolume(1.0f, 1.0f)
+
+        if (mediaPlayer == null) {
+            Log.d(TAG, "Error creating media player for track " + track.name)
+            Toast.makeText(context, context.getString(R.string.error_loading_track, track.name), Toast.LENGTH_LONG).show()
+            next()
+        }
     }
 
     private fun notifyTrackChanged() {

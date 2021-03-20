@@ -2,7 +2,6 @@ package io.github.evilsloth.amazfitplayer
 
 import android.content.Context
 import android.os.Bundle
-import android.os.Environment
 import android.view.GestureDetector
 import androidx.viewpager2.widget.ViewPager2
 import io.github.evilsloth.amazfitplayer.mediaplayer.AmazfitMediaPlayer
@@ -16,8 +15,7 @@ import io.github.evilsloth.amazfitplayer.plugin.PluginPagesAdapter
 import io.github.evilsloth.amazfitplayer.queue.QueuePluginPage
 import io.github.evilsloth.amazfitplayer.queue.TrackQueue
 import io.github.evilsloth.amazfitplayer.settings.SettingsPluginPage
-import io.github.evilsloth.amazfitplayer.tracks.FileTrack
-import java.io.File
+import io.github.evilsloth.amazfitplayer.tracks.FileTracksResolver
 
 
 private const val TAG = "PlayerPlugin"
@@ -29,6 +27,7 @@ class PlayerPlugin : BasePlayerPlugin() {
     private lateinit var mediaSessionController: MediaSessionController
     private lateinit var playbackTimer: PlaybackTimer
     private lateinit var trackQueue: TrackQueue
+    private lateinit var fileTracksResolver: FileTracksResolver
     private lateinit var viewPager: ViewPager2
 
     override fun onViewCreated() {
@@ -45,11 +44,12 @@ class PlayerPlugin : BasePlayerPlugin() {
     override fun afterViewCreated(launcherContext: Context) {
         trackQueue = TrackQueue()
         volumeController = VolumeController(launcherContext)
-        mediaPlayer = AmazfitMediaPlayer(launcherContext, trackQueue, volumeController)
+        mediaPlayer = AmazfitMediaPlayer(context, trackQueue, volumeController)
         mediaSessionController = MediaSessionController(launcherContext, mediaPlayer)
         playbackTimer = PlaybackTimer(this, host)
+        fileTracksResolver = FileTracksResolver()
 
-        val tracks = readFiles().map { FileTrack(it) }
+        val tracks = fileTracksResolver.resolve("Music", FileTracksResolver.PathType.DIRECTORY_DEEP)
         mediaPlayer.replaceQueue(tracks)
 
         val pages = arrayOf(
@@ -78,12 +78,6 @@ class PlayerPlugin : BasePlayerPlugin() {
     override fun onInactive(paramBundle: Bundle?) {
         super.onInactive(paramBundle)
         goToDefaultPage()
-    }
-
-    private fun readFiles(): List<File> {
-        val path: String = Environment.getExternalStorageDirectory().toString() + "/Music"
-        val directory = File(path)
-        return directory.walk().filter { it.extension == "mp3" }.sorted().toList()
     }
 
     private fun goToDefaultPage() {
